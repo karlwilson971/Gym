@@ -1,4 +1,22 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "routes": [
+    { "src": "/", "headers": { "Vary": "Accept" }, "continue": true },
+    {
+      "src": "/",
+      "has": [{ "type": "header", "key": "accept", "value": "(.*)text/markdown(.*)" }],
+      "dest": "/index.md",
+      "headers": { "Content-Type": "text/markdown; charset=utf-8" }
+    },
+    { "handle": "filesystem" },
+    { "src": "/(dashboard|library|workout|progress|classes|profile)/?", "dest": "/index.html" },
+    {
+      "src": "/.*",
+      "has": [{ "type": "header", "key": "accept", "value": "(.*)text/markdown(.*)" }],
+      "dest": "/404.md",
+      "status": 404,
+      "headers": { "Content-Type": "text/markdown; charset=utf-8", "Vary": "Accept" }
+    },
+    { "src": "/.*", "dest": "/index.html", "status": 404, "headers": { "Vary": "Accept" } }
+  ]
 }
