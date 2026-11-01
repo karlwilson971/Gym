@@ -15,7 +15,26 @@
     />
   </head>
   <body>
-    <div id="root"></div>
+    <!-- Static content for crawlers and agents that don't run JavaScript. React replaces it on load. -->
+    <div id="root">
+      <main class="mx-auto max-w-3xl px-6 py-24">
+        <h1 class="text-5xl font-bold">PulseFit: Train smarter. Get stronger.</h1>
+        <p class="mt-6 text-lg">
+          Your gym in your pocket. PulseFit is a fitness app to plan workouts, crush sets with a live rest timer,
+          book gym classes and watch your strength progress climb.
+        </p>
+        <h2 class="mt-12 text-3xl font-bold">Everything in one app</h2>
+        <ul class="mt-6 space-y-4">
+          <li><h3 class="font-semibold"><a href="/dashboard">Your daily dashboard</a></h3><p>Today's plan, weekly activity and goal rings at a glance.</p></li>
+          <li><h3 class="font-semibold"><a href="/library">Smart workout library</a></h3><p>Moves filtered by muscle group, with sets, reps and difficulty dialed in.</p></li>
+          <li><h3 class="font-semibold"><a href="/workout">Live workout mode</a></h3><p>A big, bold rest timer and one-tap set tracking built for sweaty thumbs.</p></li>
+          <li><h3 class="font-semibold"><a href="/progress">Progress you can see</a></h3><p>Strength curves and PR trophies that make every extra kilo feel earned.</p></li>
+          <li><h3 class="font-semibold"><a href="/classes">Book classes in a tap</a></h3><p>Yoga, HIIT, Spin and Boxing. See spots left and lock in your place.</p></li>
+          <li><h3 class="font-semibold"><a href="/profile">Streaks that stick</a></h3><p>Daily streaks, badges and achievements that keep you coming back.</p></li>
+        </ul>
+        <p class="mt-12"><a href="/workout">Start your workout</a> · <a href="/dashboard">Open the app</a></p>
+      </main>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
