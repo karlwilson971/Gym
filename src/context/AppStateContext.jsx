@@ -1,8 +1,9 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { user } from '../data/mockData'
 import { todayKey } from '../lib/utils'
 
 const KEY = 'pulsefit-state-v1'
+const CLIENT_KEY = 'pulsefit-client-id-v1'
 
 const initial = {
   bookings: ['c-1-1'],
@@ -22,10 +23,53 @@ function load() {
   }
 }
 
+function getClientId() {
+  try {
+    let id = localStorage.getItem(CLIENT_KEY)
+    if (!id) {
+      id = crypto.randomUUID()
+      localStorage.setItem(CLIENT_KEY, id)
+    }
+    return id
+  } catch {
+    return null
+  }
+}
+
 const AppStateContext = createContext(null)
 
 export function AppStateProvider({ children }) {
   const [state, setState] = useState(load)
+  const [clientId, setClientId] = useState(null)
+  const [databaseReady, setDatabaseReady] = useState(false)
+  const stateRef = useRef(state)
+  const initialStateRef = useRef(state)
+  stateRef.current = state
+
+  useEffect(() => {
+    const id = getClientId()
+    setClientId(id)
+    let active = true
+
+    if (!id) {
+      setDatabaseReady(true)
+      return () => { active = false }
+    }
+
+    fetch(`/api/state?clientId=${encodeURIComponent(id)}`)
+      .then((response) => (response.ok ? response.json() : null))
+      .then((result) => {
+        if (active && result?.state && JSON.stringify(stateRef.current) === JSON.stringify(initialStateRef.current)) {
+          setState({ ...initial, ...result.state })
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (active) setDatabaseReady(true)
+      })
+
+    return () => { active = false }
+  }, [])
 
   useEffect(() => {
     try {
@@ -34,6 +78,20 @@ export function AppStateProvider({ children }) {
       /* storage unavailable */
     }
   }, [state])
+
+  useEffect(() => {
+    if (!databaseReady || !clientId) return
+
+    const timeout = setTimeout(() => {
+      fetch('/api/state', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clientId, state }),
+      }).catch(() => {})
+    }, 350)
+
+    return () => clearTimeout(timeout)
+  }, [state, clientId, databaseReady])
 
   const toggleBooking = useCallback(
     (id) =>
